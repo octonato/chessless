@@ -6,6 +6,8 @@ import com.github.bhlangonijr.chesslib.Board;
 import com.github.bhlangonijr.chesslib.move.Move;
 import com.google.protobuf.Empty;
 
+import java.util.Locale;
+
 /**
  * An event sourced entity.
  */
@@ -87,10 +89,10 @@ public class ChessGameEntity {
   }
 
   private ServiceApi.Board toApiBoard() {
-
     return ServiceApi.Board.newBuilder()
         .setFenText(board.getFen())
         .setCheckmated(board.isMated())
+        .setNextPlayer(board.getSideToMove().name().toLowerCase(Locale.ROOT))
         .build();
   }
 }

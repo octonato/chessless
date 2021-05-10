@@ -27,6 +27,7 @@ public class ChessGameServiceTest {
     ServiceApi.Board board = game.get(getBoard);
 
     assertEquals("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", board.getFenText());
+    assertEquals("black", board.getNextPlayer());
   }
 
   @Test
@@ -46,10 +47,11 @@ public class ChessGameServiceTest {
     }
 
     { // move queen and checkmate
-      ServiceApi.MovePiece moveQueen = ServiceApi.MovePiece.newBuilder().setMovement("d7b7").build();
+      String movement = "d7b7";
+      ServiceApi.MovePiece moveQueen = ServiceApi.MovePiece.newBuilder().setMovement(movement).build();
       game.move(moveQueen, context);
 
-      Domain.Moved queenMoved = Domain.Moved.newBuilder().setMovement("d7b7").build();
+      Domain.Moved queenMoved = Domain.Moved.newBuilder().setMovement(movement).build();
       Mockito.verify(context).emit(queenMoved);
       game.pieceMoved(queenMoved);
 
@@ -58,17 +60,43 @@ public class ChessGameServiceTest {
   }
 
   @Test
+  public void cantPlayAFinishedGame() {
+
+    ChessGameEntity game = new ChessGameEntity(entityId);
+
+    { // load board from a FEN
+      String fen = "k7/1Q6/p7/5K2/8/8/8/1R6 b - - 1 1";
+      game.loadFen(ServiceApi.LoadFromFen.newBuilder().setFenText(fen).build(), context);
+
+      Domain.BoardLoaded boardLoaded = Domain.BoardLoaded.newBuilder().setFenText(fen).build();
+      Mockito.verify(context).emit(boardLoaded);
+      game.boardLoaded(boardLoaded);
+
+      assertTrue(game.get(getBoard).getCheckmated());
+    }
+
+    { // kind can't move pawn after end game
+      String movement = "a6a5";
+      RuntimeException exception =
+          assertThrows(RuntimeException.class, () ->
+              game.move(ServiceApi.MovePiece.newBuilder().setMovement(movement).build(), context)
+          );
+
+      assertTrue(exception.getMessage().startsWith("Invalid move: "));
+    }
+  }
+
+  @Test
   public void illegalMovesAreRejected() {
     ChessGameEntity game = new ChessGameEntity(entityId);
     // illegal move
-    String pos = "e2e1";
+    String movement = "e2e1";
 
     RuntimeException exception =
         assertThrows(RuntimeException.class, () ->
-            game.move(ServiceApi.MovePiece.newBuilder().setMovement(pos).build(), context)
+            game.move(ServiceApi.MovePiece.newBuilder().setMovement(movement).build(), context)
         );
 
-    System.out.println(exception.getMessage());
     assertTrue(exception.getMessage().startsWith("Invalid move: "));
 
   }

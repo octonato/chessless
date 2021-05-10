@@ -26,6 +26,7 @@ message GetBoard {
 message Board {
     string fenText = 1;
     bool checkmated = 2;
+    string nextPlayer = 3;
 }
 
 
