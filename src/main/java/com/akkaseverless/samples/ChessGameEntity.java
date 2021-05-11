@@ -5,6 +5,8 @@ import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.github.bhlangonijr.chesslib.Board;
 import com.github.bhlangonijr.chesslib.move.Move;
 import com.google.protobuf.Empty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 
@@ -14,6 +16,7 @@ import java.util.Locale;
 @EventSourcedEntity(entityType = "ChessGameService")
 public class ChessGameEntity {
 
+  private Logger logger = LoggerFactory.getLogger(getClass());
   private Board board = new Board();
 
   @SuppressWarnings("unused")
@@ -24,47 +27,49 @@ public class ChessGameEntity {
   }
 
   @Snapshot
-  public Domain.ChessGame snapshot() {
+  public ChessDomain.ChessGame snapshot() {
     return toChessGame();
   }
 
   @SnapshotHandler
-  public void handleSnapshot(Domain.ChessGame chessGame) {
+  public void handleSnapshot(ChessDomain.ChessGame chessGame) {
     board.loadFromFen(chessGame.getFenText());
   }
 
 
   @CommandHandler
-  public Empty move(ServiceApi.MovePiece movePiece, CommandContext ctx) {
-    String validMovement = validateMove(movePiece.getMovement());
-    ctx.emit(Domain.Moved.newBuilder().setMovement(validMovement).build());
+  public Empty move(ChessGameApi.MovePiece movePiece, CommandContext ctx) {
+    String validMovement = validateMove(movePiece.getMovement(), ctx);
+    logger.debug("movement '{}' is valid", validMovement);
+    ctx.emit(ChessDomain.Moved.newBuilder().setMovement(validMovement).build());
     return Empty.getDefaultInstance();
   }
 
   @CommandHandler
-  public Empty loadFen(ServiceApi.LoadFromFen loadFromFen, CommandContext ctx) {
-    ctx.emit(Domain.BoardLoaded.newBuilder().setFenText(loadFromFen.getFenText()).build());
+  public Empty start(ChessGameApi.StartFromFEN loadFromFen, CommandContext ctx) {
+    logger.debug("staring board from FEN '{}'", loadFromFen.getFenText());
+    ctx.emit(ChessDomain.BoardLoaded.newBuilder().setFenText(loadFromFen.getFenText()).build());
     return Empty.getDefaultInstance();
   }
 
   @CommandHandler
-  public ServiceApi.Board get(ServiceApi.GetBoard getBoard) {
+  public ChessGameApi.Board get(ChessGameApi.GetBoard getBoard) {
     return toApiBoard();
   }
 
 
   @EventHandler
-  public void pieceMoved(Domain.Moved pieceMoved) {
+  public void pieceMoved(ChessDomain.Moved pieceMoved) {
     String movement = pieceMoved.getMovement();
     board.doMove(movement);
   }
 
   @EventHandler
-  public void boardLoaded(Domain.BoardLoaded boardLoaded) {
+  public void boardLoaded(ChessDomain.BoardLoaded boardLoaded) {
     board.loadFromFen(boardLoaded.getFenText());
   }
 
-  private String validateMove(String moveStr) {
+  private String validateMove(String moveStr, CommandContext ctx) {
     Move move = new Move(moveStr, board.getSideToMove());
     if (board.isMoveLegal(move, true)) {
       return moveStr;
@@ -80,16 +85,16 @@ public class ChessGameEntity {
 
       // if we throw this, it means that isMoveLegal returned false,
       // but we were able to apply it anyway
-      throw new RuntimeException("Unexpected error");
+      throw ctx.fail("Unexpected error");
     }
   }
 
-  private Domain.ChessGame toChessGame() {
-    return Domain.ChessGame.newBuilder().setFenText(board.getFen()).build();
+  private ChessDomain.ChessGame toChessGame() {
+    return ChessDomain.ChessGame.newBuilder().setFenText(board.getFen()).build();
   }
 
-  private ServiceApi.Board toApiBoard() {
-    return ServiceApi.Board.newBuilder()
+  private ChessGameApi.Board toApiBoard() {
+    return ChessGameApi.Board.newBuilder()
         .setFenText(board.getFen())
         .setCheckmated(board.isMated())
         .setNextPlayer(board.getSideToMove().name().toLowerCase(Locale.ROOT))

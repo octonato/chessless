@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package com.akkaseverless.samples;
+
+import "akkaserverless/annotations.proto";
+
+option java_outer_classname = "PuzzleDomain";
+
+option (akkaserverless.file).value_entity = {
+  name : "Puzzle"
+  entity_type : "Puzzle"
+  state : { type: "Puzzle" }
+};
+
+message Puzzle {
+    string puzzle_id = 1;
+    string fenText = 2;
+    string description = 3;
+    string difficultLevel = 4;
+}

@@ -1,6 +1,11 @@
 package com.akkaseverless.samples;
 
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+import com.akkaseverless.samples.ChessDomain.BoardLoaded;
+import com.akkaseverless.samples.ChessDomain.Moved;
+import com.akkaseverless.samples.ChessGameApi.GetBoard;
+import com.akkaseverless.samples.ChessGameApi.MovePiece;
+import com.akkaseverless.samples.ChessGameApi.StartFromFEN;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -9,7 +14,7 @@ import static org.junit.Assert.*;
 public class ChessGameServiceTest {
   private String entityId = "entityId1";
 
-  private ServiceApi.GetBoard getBoard = ServiceApi.GetBoard.newBuilder().build();
+  private GetBoard getBoard = GetBoard.newBuilder().build();
   private CommandContext context = Mockito.mock(CommandContext.class);
 
   @Test
@@ -18,13 +23,13 @@ public class ChessGameServiceTest {
 
     // move white pawn to e4
     String moveStr = "e2e4";
-    game.move(ServiceApi.MovePiece.newBuilder().setMovement(moveStr).build(), context);
+    game.move(MovePiece.newBuilder().setMovement(moveStr).build(), context);
 
-    Domain.Moved moved = Domain.Moved.newBuilder().setMovement(moveStr).build();
+    Moved moved = Moved.newBuilder().setMovement(moveStr).build();
     Mockito.verify(context).emit(moved);
     game.pieceMoved(moved);
 
-    ServiceApi.Board board = game.get(getBoard);
+    ChessGameApi.Board board = game.get(getBoard);
 
     assertEquals("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", board.getFenText());
     assertEquals("black", board.getNextPlayer());
@@ -37,9 +42,9 @@ public class ChessGameServiceTest {
 
     { // load board from a FEN
       String fen = "k7/3Q4/p7/5K2/8/8/8/1R6 w - - 0 1";
-      game.loadFen(ServiceApi.LoadFromFen.newBuilder().setFenText(fen).build(), context);
+      game.start(StartFromFEN.newBuilder().setFenText(fen).build(), context);
 
-      Domain.BoardLoaded boardLoaded = Domain.BoardLoaded.newBuilder().setFenText(fen).build();
+      BoardLoaded boardLoaded = BoardLoaded.newBuilder().setFenText(fen).build();
       Mockito.verify(context).emit(boardLoaded);
       game.boardLoaded(boardLoaded);
 
@@ -48,10 +53,10 @@ public class ChessGameServiceTest {
 
     { // move queen and checkmate
       String movement = "d7b7";
-      ServiceApi.MovePiece moveQueen = ServiceApi.MovePiece.newBuilder().setMovement(movement).build();
+      MovePiece moveQueen = MovePiece.newBuilder().setMovement(movement).build();
       game.move(moveQueen, context);
 
-      Domain.Moved queenMoved = Domain.Moved.newBuilder().setMovement(movement).build();
+      Moved queenMoved = Moved.newBuilder().setMovement(movement).build();
       Mockito.verify(context).emit(queenMoved);
       game.pieceMoved(queenMoved);
 
@@ -66,9 +71,9 @@ public class ChessGameServiceTest {
 
     { // load board from a FEN
       String fen = "k7/1Q6/p7/5K2/8/8/8/1R6 b - - 1 1";
-      game.loadFen(ServiceApi.LoadFromFen.newBuilder().setFenText(fen).build(), context);
+      game.start(StartFromFEN.newBuilder().setFenText(fen).build(), context);
 
-      Domain.BoardLoaded boardLoaded = Domain.BoardLoaded.newBuilder().setFenText(fen).build();
+      BoardLoaded boardLoaded = BoardLoaded.newBuilder().setFenText(fen).build();
       Mockito.verify(context).emit(boardLoaded);
       game.boardLoaded(boardLoaded);
 
@@ -79,7 +84,7 @@ public class ChessGameServiceTest {
       String movement = "a6a5";
       RuntimeException exception =
           assertThrows(RuntimeException.class, () ->
-              game.move(ServiceApi.MovePiece.newBuilder().setMovement(movement).build(), context)
+              game.move(MovePiece.newBuilder().setMovement(movement).build(), context)
           );
 
       assertTrue(exception.getMessage().startsWith("Invalid move: "));
@@ -94,7 +99,7 @@ public class ChessGameServiceTest {
 
     RuntimeException exception =
         assertThrows(RuntimeException.class, () ->
-            game.move(ServiceApi.MovePiece.newBuilder().setMovement(movement).build(), context)
+            game.move(MovePiece.newBuilder().setMovement(movement).build(), context)
         );
 
     assertTrue(exception.getMessage().startsWith("Invalid move: "));

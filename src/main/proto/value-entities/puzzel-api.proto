@@ -1,0 +1,41 @@
+// This is the public API offered by your entity.
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "akkaserverless/annotations.proto";
+import "google/api/annotations.proto";
+
+package com.akkaseverless.samples;
+
+option java_outer_classname = "ChessPuzzleApi";
+
+message CreatePuzzle {
+    string puzzleId = 1 [(akkaserverless.field).entity_key = true];
+    string fenText = 2;
+    string description = 3;
+    string difficultLevel = 4;
+}
+
+message GetPuzzle {
+    string puzzleId = 1 [(akkaserverless.field).entity_key = true];
+}
+
+message StartGame {
+    string puzzleId = 1 [(akkaserverless.field).entity_key = true];
+    string boardId = 2;
+}
+
+message ChessPuzzle {
+    string puzzleId = 1;
+    string fenText = 2;
+    string description = 3;
+    string difficultLevel = 4;
+}
+
+service ChessPuzzleService {
+    option (akkaserverless.service).entity.type = ".Puzzle";
+
+    rpc Create (CreatePuzzle) returns (google.protobuf.Empty);
+    rpc Get (GetPuzzle) returns (ChessPuzzle);
+    rpc Start (StartGame) returns (google.protobuf.Empty);
+}

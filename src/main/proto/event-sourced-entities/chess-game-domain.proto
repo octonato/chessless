@@ -3,7 +3,7 @@ syntax = "proto3";
 package com.akkaseverless.samples;
 
 import "akkaserverless/annotations.proto";
-option java_outer_classname = "Domain";
+option java_outer_classname = "ChessDomain";
 
 option (akkaserverless.file).event_sourced_entity = {
     name: "ChessGame"
@@ -18,11 +18,11 @@ message ChessGame {
 }
 
 message Moved {
-    string entity_id = 1 [(akkaserverless.field).entity_key = true];
+    string boardId = 1 [(akkaserverless.field).entity_key = true];
     string movement = 2;
 }
 
 message BoardLoaded {
-    string entity_id = 1 [(akkaserverless.field).entity_key = true];
+    string boardId = 1 [(akkaserverless.field).entity_key = true];
     string fenText = 2;
 }

@@ -7,20 +7,20 @@ import "google/api/annotations.proto";
 
 package com.akkaseverless.samples;
 
-option java_outer_classname = "ServiceApi";
+option java_outer_classname = "ChessGameApi";
 
 message MovePiece {
-    string board_id = 1 [(akkaserverless.field).entity_key = true];
+    string boardId = 1 [(akkaserverless.field).entity_key = true];
     string movement = 2;
 }
 
-message LoadFromFen {
-    string board_id = 1 [(akkaserverless.field).entity_key = true];
+message StartFromFEN {
+    string boardId = 1 [(akkaserverless.field).entity_key = true];
     string fenText = 2;
 }
 
 message GetBoard {
-    string board_id = 1 [(akkaserverless.field).entity_key = true];
+    string boardId = 1 [(akkaserverless.field).entity_key = true];
 }
 
 message Board {
@@ -33,6 +33,7 @@ message Board {
 service ChessGameService {
     option (akkaserverless.service).entity.type = ".ChessGame";
 
-    rpc Move(MovePiece) returns (google.protobuf.Empty);
+    rpc Start (StartFromFEN) returns (google.protobuf.Empty);
+    rpc Move (MovePiece) returns (google.protobuf.Empty);
     rpc Get(GetBoard) returns (Board);
 }
