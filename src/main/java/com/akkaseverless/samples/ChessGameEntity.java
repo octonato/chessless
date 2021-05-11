@@ -38,11 +38,11 @@ public class ChessGameEntity {
 
 
   @CommandHandler
-  public Empty move(ChessGameApi.MovePiece movePiece, CommandContext ctx) {
+  public ChessGameApi.Board move(ChessGameApi.MovePiece movePiece, CommandContext ctx) {
     String validMovement = validateMove(movePiece.getMovement(), ctx);
     logger.debug("movement '{}' is valid", validMovement);
     ctx.emit(ChessDomain.Moved.newBuilder().setMovement(validMovement).build());
-    return Empty.getDefaultInstance();
+    return toApiBoard();
   }
 
   @CommandHandler

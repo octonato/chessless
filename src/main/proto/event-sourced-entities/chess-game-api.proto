@@ -34,6 +34,6 @@ service ChessGameService {
     option (akkaserverless.service).entity.type = ".ChessGame";
 
     rpc Start (StartFromFEN) returns (google.protobuf.Empty);
-    rpc Move (MovePiece) returns (google.protobuf.Empty);
+    rpc Move (MovePiece) returns (Board);
     rpc Get(GetBoard) returns (Board);
 }
