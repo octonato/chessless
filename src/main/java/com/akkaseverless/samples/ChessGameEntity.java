@@ -2,6 +2,7 @@ package com.akkaseverless.samples;
 
 import com.akkaserverless.javasdk.EntityId;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
+import com.akkaseverless.samples.RefIdProto.RefId;
 import com.github.bhlangonijr.chesslib.Board;
 import com.github.bhlangonijr.chesslib.move.Move;
 import com.google.protobuf.Empty;
@@ -46,10 +47,11 @@ public class ChessGameEntity {
   }
 
   @CommandHandler
-  public Empty start(ChessGameApi.StartFromFEN loadFromFen, CommandContext ctx) {
+  public RefId start(ChessGameApi.StartFromFEN loadFromFen, CommandContext ctx) {
     logger.debug("staring board from FEN '{}'", loadFromFen.getFenText());
     ctx.emit(ChessDomain.BoardLoaded.newBuilder().setFenText(loadFromFen.getFenText()).build());
-    return Empty.getDefaultInstance();
+
+    return RefId.newBuilder().setType("board").setId(entityId).build();
   }
 
   @CommandHandler

@@ -3,16 +3,18 @@ package com.akkaseverless.samples;
 import com.akkaserverless.javasdk.EntityId;
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCallRef;
-import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
+import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.akkaseverless.samples.ChessPuzzleApi.ChessPuzzle;
 import com.akkaseverless.samples.ChessPuzzleApi.CreatePuzzle;
 import com.akkaseverless.samples.ChessPuzzleApi.GetPuzzle;
 import com.akkaseverless.samples.PuzzleDomain.Puzzle;
-import com.google.protobuf.Empty;
+import com.akkaseverless.samples.RefIdProto.RefId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
 
 /**
  * A value entity.
@@ -31,9 +33,9 @@ public class ChessPuzzleEntity {
   }
 
   @CommandHandler
-  public Empty create(CreatePuzzle createPuzzle, CommandContext<Puzzle> ctx) {
+  public RefId create(CreatePuzzle createPuzzle, CommandContext<Puzzle> ctx) {
     ctx.updateState(PuzzleConversions.create(createPuzzle));
-    return Empty.getDefaultInstance();
+    return RefId.newBuilder().setId(entityId).setType("puzzle").build();
   }
 
   @CommandHandler
@@ -42,7 +44,7 @@ public class ChessPuzzleEntity {
   }
 
   @CommandHandler
-  public Reply<Empty> start(ChessPuzzleApi.StartGame startGame, CommandContext<Puzzle> ctx) {
+  public Reply<RefId> start(ChessPuzzleApi.StartGame startGame, CommandContext<Puzzle> ctx) {
 
     Puzzle puzzle = getPuzzle(ctx);
     String fen = puzzle.getFenText();
@@ -53,11 +55,13 @@ public class ChessPuzzleEntity {
             "Start",
             ChessGameApi.StartFromFEN.class);
 
-    logger.debug("creating new game from FEN '{}', game id: '{}'", fen, startGame.getBoardId());
+    String boardId = UUID.randomUUID().toString();
+    logger.debug("creating new game from FEN '{}'", fen);
+
     ChessGameApi.StartFromFEN start =
         ChessGameApi.StartFromFEN
             .newBuilder()
-            .setBoardId(startGame.getBoardId())
+            .setBoardId(boardId)
             .setFenText(fen)
             .build();
 

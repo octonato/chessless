@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package com.akkaseverless.samples;
+
+option java_outer_classname = "RefIdProto";
+message RefId {
+    string id = 1;
+    string type = 2;
+}

@@ -6,6 +6,11 @@ public final class Main {
 
   public static void main(String[] args) throws Exception {
     new AkkaServerless()
+        .registerAction(
+            ChessActionsImpl.class,
+            ChessActions.getDescriptor().findServiceByName("ChessService"),
+            ChessActions.getDescriptor()
+        )
         .registerEventSourcedEntity(
             ChessGameEntity.class,
             ChessGameApi.getDescriptor().findServiceByName("ChessGameService"),
@@ -16,6 +21,7 @@ public final class Main {
             ChessPuzzleApi.getDescriptor().findServiceByName("ChessPuzzleService"),
             PuzzleDomain.getDescriptor()
         )
+
         .start().toCompletableFuture().get();
   }
 

@@ -1,13 +1,24 @@
 #!/bin/sh
 
 
+#function puzzle.create() {
+#  grpcurl  -plaintext -d @ localhost:9000 com.akkaseverless.samples.ChessPuzzleService/Create <<EOM
+#{
+#  "puzzleId": "$1",
+#  "fenText": "$2",
+#  "description": "$3",
+#  "difficultLevel": "$4"
+#}
+#EOM
+#}
+
+
 function puzzle.create() {
-  grpcurl  -plaintext -d @ localhost:9000 com.akkaseverless.samples.ChessPuzzleService/Create <<EOM
+  grpcurl  -plaintext -d @ localhost:9000 com.akkaseverless.samples.ChessService/CreatePuzzle <<EOM
 {
-  "puzzleId": "$1",
-  "fenText": "$2",
-  "description": "$3",
-  "difficultLevel": "$4"
+  "fenText": "$1",
+  "description": "$2",
+  "difficultLevel": "$3"
 }
 EOM
 }
@@ -15,8 +26,7 @@ EOM
 function puzzle.startGame() {
   grpcurl  -plaintext -d @ localhost:9000 com.akkaseverless.samples.ChessPuzzleService/Start <<EOM
 {
-  "puzzleId": "$1",
-  "boardId": "$2"
+  "puzzleId": "$1"
 }
 EOM
 

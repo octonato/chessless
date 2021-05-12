@@ -4,6 +4,7 @@ syntax = "proto3";
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
+import "ref-id.proto";
 
 package com.akkaseverless.samples;
 
@@ -22,7 +23,6 @@ message GetPuzzle {
 
 message StartGame {
     string puzzleId = 1 [(akkaserverless.field).entity_key = true];
-    string boardId = 2;
 }
 
 message ChessPuzzle {
@@ -35,7 +35,7 @@ message ChessPuzzle {
 service ChessPuzzleService {
     option (akkaserverless.service).entity.type = ".Puzzle";
 
-    rpc Create (CreatePuzzle) returns (google.protobuf.Empty);
+    rpc Create (CreatePuzzle) returns (RefId);
     rpc Get (GetPuzzle) returns (ChessPuzzle);
-    rpc Start (StartGame) returns (google.protobuf.Empty);
+    rpc Start (StartGame) returns (RefId);
 }
