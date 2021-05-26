@@ -51,6 +51,7 @@ public class ChessGameEntity {
     logger.debug("staring board from FEN '{}'", loadFromFen.getFenText());
     ctx.emit(ChessDomain.BoardLoaded.newBuilder().setFenText(loadFromFen.getFenText()).build());
 
+    ctx.fail("asd");
     return RefId.newBuilder().setType("board").setId(entityId).build();
   }
 

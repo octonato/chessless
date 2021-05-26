@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package com.akkaseverless.samples;
+
+import "akkaserverless/annotations.proto";
+import "value-entities/puzzle-api.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "ref-id.proto";
+
+message PuzzleDesc {
+    string fenText = 1;
+    string description = 2;
+    string difficultLevel = 3;
+}
+
+service ChessService {
+
+    rpc CreatePuzzle(PuzzleDesc) returns (RefId) {
+    }
+}

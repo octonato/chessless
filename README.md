@@ -1,5 +1,17 @@
 # samples-java-chessless
 
+Very minimal (and rough) chess application.
+
+Lichess is the main inspiration for building this application. Lichess is an OSS Chess server build on Play and Akka. The project is huge and full of features. The goal is not to replicate it, but build a very minimal chess app.
+
+This project is currently using https://github.com/bhlangonijr/chesslib as the underlying chess rules library. I tried to use Lichess' https://github.com/ornicar/scalachess, but it uses Cats and other FP Scala constructs that didn't play well with Java. It would be cool to move to scalachess once we have the Scala SDK.
+## Major TODOs
+
+- [ ] add a GUI - possibly something running on Play or Akka Http and working as a gateway. It's an opporutniy to show an integration point between Akka Platform and Akka Serverless. For the GUI part, we can use https://github.com/ornicar/lila/
+- [ ] adds user services
+- [ ] Views
+  - [ ] find puzzles based on level (easy, moderate, hard)
+  - [ ] winners statistics
 
 ## Designing
 
@@ -48,23 +60,7 @@ mvn compile exec:java
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.lbcs.dev/js-services/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
-```
-> curl -XPOST -H "Content-Type: application/json" localhost:9000/com.akkaseverless.samples.MyServiceEntity/GetValue -d '{"entityId": "foo"}'
-The command handler for `GetValue` is not implemented, yet
-```
-
-For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
-
-```
-> grpcurl -plaintext -d '{"entityId": "foo"}' localhost:9000 com.akkaseverless.samples.MyServiceEntity/GetValue
-ERROR:
-  Code: Unknown
-  Message: The command handler for `GetValue` is not implemented, yet
-```
-
-> Note: The failure is to be expected if you have not yet provided an implementation of `GetValue` in
-> your entity.
-
+For running, check out chess-api.sh. Source it in your shell and call the functions. Or simply look at the implementation and call grpcurl directly.
 
 ## Deploying
 

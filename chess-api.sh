@@ -1,18 +1,6 @@
 #!/bin/sh
 
 
-#function puzzle.create() {
-#  grpcurl  -plaintext -d @ localhost:9000 com.akkaseverless.samples.ChessPuzzleService/Create <<EOM
-#{
-#  "puzzleId": "$1",
-#  "fenText": "$2",
-#  "description": "$3",
-#  "difficultLevel": "$4"
-#}
-#EOM
-#}
-
-
 function puzzle.create() {
   grpcurl  -plaintext -d @ localhost:9000 com.akkaseverless.samples.ChessService/CreatePuzzle <<EOM
 {

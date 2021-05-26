@@ -35,10 +35,4 @@ public class ChessPuzzleServiceTest {
     ChessPuzzle puzzle = puzzleEntity.get(GetPuzzle.newBuilder().setPuzzleId(puzzleId).build(), context);
     Assert.assertEquals(puzzle.getFenText(), fen);
   }
-
-  @Test
-  public void startTest() {
-
-    ChessPuzzleEntity puzzle = new ChessPuzzleEntity(puzzleId);
-  }
 }

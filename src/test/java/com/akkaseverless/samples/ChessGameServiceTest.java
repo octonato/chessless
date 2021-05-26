@@ -65,7 +65,7 @@ public class ChessGameServiceTest {
   }
 
   @Test
-  public void cantPlayAFinishedGame() {
+  public void cannotPlayAFinishedGame() {
 
     ChessGameEntity game = new ChessGameEntity(entityId);
 
