@@ -35,6 +35,11 @@ public class ChessPuzzleEntity {
   @CommandHandler
   public RefId create(CreatePuzzle createPuzzle, CommandContext<Puzzle> ctx) {
     ctx.updateState(PuzzleConversions.create(createPuzzle));
+    
+    // This is kind of ackward. 
+    // We need to return RefId because the caller (Action) needs it.
+    // But whoever is calling this service, is supposed to know the id since it 
+    // needs to be part of the command.
     return RefId.newBuilder().setId(entityId).setType("puzzle").build();
   }
 

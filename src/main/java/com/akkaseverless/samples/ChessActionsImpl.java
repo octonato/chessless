@@ -26,12 +26,6 @@ public class ChessActionsImpl {
   @Handler
   public Reply<RefId> createPuzzle(ChessActions.PuzzleDesc puzzleDesc, ActionContext ctx) {
 
-    ServiceCallRef<CreatePuzzle> call =
-        ctx.serviceCallFactory().lookup(
-            "com.akkaseverless.samples.ChessPuzzleService",
-            "Create",
-            CreatePuzzle.class);
-
     String puzzleId = UUID.randomUUID().toString();
     String fen = puzzleDesc.getFenText();
     logger.info("creating new chess puzzle from FEN '{}' with puzzle id: '{}'", fen, puzzleId);
@@ -43,7 +37,17 @@ public class ChessActionsImpl {
         .setDifficultLevel(puzzleDesc.getDifficultLevel())
         .build();
 
+    // ServiceCallRef<I> where I is the input parameter, 
+    // we don't know the O (output) of the call
+    ServiceCallRef<CreatePuzzle> callRef =
+        ctx.serviceCallFactory().lookup(
+            "com.akkaseverless.samples.ChessPuzzleService",
+            "Create",
+            CreatePuzzle.class);
 
-    return Reply.forward(call.createCall(createPuzzle));
+    // NOTE: the forward is untyped.
+    // We must ensure that the types align here, 
+    // ie ChessPuzzleService will return a RefId that we can use as return type for this Action
+    return Reply.forward(callRef.createCall(createPuzzle));
   }
 }
